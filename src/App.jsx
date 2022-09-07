@@ -87,7 +87,7 @@ if (chainId !== rinkebyChainId) {
         await mintTxn.wait();
         console.log(mintTxn);
         console.log(`Mining, see transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
-        document.getElementById("miningTxt").innerHTML = " مقدار "+ AmountTxt + " برای این آدرس " + AddrTxt + "مینت شد. برای دیدن تراکنش لینک زیر را در مرورگر خود کپی کنید" + `https://rinkeby.etherscan.io/tx/${mintTxn.hash}` ;
+        document.getElementById("miningTxt").innerHTML = "Minted The amoun of: "+ AmountTxt + " to this address: " + AddrTxt + "See transaction:" + `https://rinkeby.etherscan.io/tx/${mintTxn.hash}` ;
       }catch (err) {
        document.getElementById("miningTxt").innerHTML = "";
         if (mintTxn.hash){
@@ -133,7 +133,7 @@ if (chainId !== rinkebyChainId) {
         let tnxHash = Txn.hash;
         await Txn.wait();
         console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${Txn.hash}`);
-      document.getElementById("miningTxt").innerHTML = " شما این مقدار "+ burnAmountTxt  + "توکن سوزاندید. برای دیدن تراکنش لینک زیر را در مرورگر خود کپی کنید " + `https://rinkeby.etherscan.io/tx/${Txn.hash}`;
+      document.getElementById("miningTxt").innerHTML = " You burned "+ burnAmountTxt  + "Token, see transaction:" + `https://rinkeby.etherscan.io/tx/${Txn.hash}`;
         } catch(err) {
         document.getElementById("miningTxt").innerHTML = "";
         if (tnxHash){
@@ -176,7 +176,7 @@ if (chainId !== rinkebyChainId) {
       <button onClick={askContractToBurnToken} className="cta-button mint-button">
         Burn
       </button>
-      <div id="miningTxt" style={{textAlign: 'center', marginTop:"30px", color:"White", direction: "rtl"}}></div>
+      <div id="miningTxt" style={{textAlign: 'center', marginTop:"30px", color:"White"}}></div>
     </div>
   )
 
@@ -187,7 +187,7 @@ if (chainId !== rinkebyChainId) {
         <div className="header-container">
           <p className="header gradient-text">WebMetric ERC20</p>
           <p className="sub-text">
-            این پروژه برای ضرب کردن و سوزاندن یک توکن ERC20 طراحی شده است.
+            This is a project for minting and burning a ERC20 Token
           </p>
           {currentAccount === "" ? renderNotConnectedContainer() : renderFuncUI()}
         </div>
