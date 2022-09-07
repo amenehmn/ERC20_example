@@ -1,16 +1,10 @@
 import './styles/App.css';
-import twitterLogo from './assets/twitter-logo.svg';
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import myEpicNft from './utils/MyEpicNFT.json';
-
-const TWITTER_HANDLE = '_buildspace';
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const OPENSEA_LINK = 'https://testnets.opensea.io/collection/squarenft-0xnjmpug4f';
-const TOTAL_MINT_COUNT = 100;
+import WebMetric20 from './utils/WebMetric20.json';
 
 // I moved the contract address to the top for easy access.
-const CONTRACT_ADDRESS = "0x2780df51F48b98a9dB156A0Db0842e86B1e9a5BF";
+const CONTRACT_ADDRESS = "0x5B2fd046f99fF0ad4Df1bb04c340AB3229cb8C35";
 
 const App = () => {
 
@@ -35,7 +29,6 @@ const App = () => {
           
           // Setup listener! This is for the case where a user comes to our site
           // and ALREADY had their wallet connected + authorized.
-          setupEventListener()
       } else {
           console.log("No authorized account found")
       }
@@ -63,38 +56,7 @@ const App = () => {
     }
   }
 
-  // Setup our listener.
-  const setupEventListener = async () => {
-    // Most of this looks the same as our function askContractToMintNft
-    try {
-      const { ethereum } = window;
-
-      if (ethereum) {
-        // Same stuff again
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, myEpicNft.abi, signer);
-
-        // THIS IS THE MAGIC SAUCE.
-        // This will essentially "capture" our event when our contract throws it.
-        // If you're familiar with webhooks, it's very similar to that!
-        connectedContract.on("NewEpicNFTMinted", (from, tokenId) => {
-          console.log(from, tokenId.toNumber())
-          alert(`Hey there! We've minted your NFT and sent it to your wallet. It may be blank right now. It can take a max of 10 min to show up on OpenSea. Here's the link: https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`)
-          document.getElementById("mint-count").innerHTML = `${tokenId.toNumber()+1}/${TOTAL_MINT_COUNT} NFTs minted so far`;
-        });
-
-        console.log("Setup event listener!")
-
-      } else {
-        console.log("Ethereum object doesn't exist!");
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const askContractToMintNft = async () => {
+  const askContractToMintToken = async () => {
     try {
       const { ethereum } = window;
 
@@ -111,16 +73,72 @@ if (chainId !== rinkebyChainId) {
         
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, myEpicNft.abi, signer);
+        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, WebMetric20.abi, signer);
 
         console.log("Going to pop wallet now to pay gas...")
-        let nftTxn = await connectedContract.makeAnEpicNFT();
+        let AddrTxt = document.getElementById("addr").value;
+        let AmountTxt = document.getElementById("amount").value;
+        try{
+        let mintTxn = await connectedContract.mint(AddrTxt, AmountTxt, { gasLimit: 300000 })
 
         console.log("Mining...please wait.")
-        await nftTxn.wait();
-        console.log(nftTxn);
-        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
+        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
+        document.getElementById("miningTxt").innerHTML = `Mining...please wait.`
+        await mintTxn.wait();
+        console.log(mintTxn);
+        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
+        document.getElementById("miningTxt").innerHTML = " مقدار "+ AmountTxt + " برای این آدرس " + AddrTxt + "مینت شد. برای دیدن تراکنش لینک زیر را در مرورگر خود کپی کنید" + `https://rinkeby.etherscan.io/tx/${mintTxn.hash}` ;
+      }catch (err) {
+       document.getElementById("miningTxt").innerHTML = "";
+        if (mintTxn.hash){
+        alert(`Go to the transaction link to see the reason for the error: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`)
+    }
+        }
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
+  //// Burn Function
+  const askContractToBurnToken = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+
+      let chainId = await ethereum.request({ method: 'eth_chainId' });
+console.log("Connected to chain " + chainId);
+
+// String, hex code of the chainId of the Rinkebey test network
+const rinkebyChainId = "0x4"; 
+if (chainId !== rinkebyChainId) {
+	alert("You are not connected to the Rinkeby Test Network!");
+}
+        
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, WebMetric20.abi, signer);
+
+        console.log("Going to pop wallet now to pay gas...")
+        let burnAmountTxt = document.getElementById("amountBurn").value;
+        try {
+        let Txn = await connectedContract.burn(burnAmountTxt, { gasLimit: 300000 });
+
+        console.log("Mining...please wait.")
+        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${Txn.hash}`);
+        document.getElementById("miningTxt").innerHTML = `Mining...please wait.`
+        await Txn.wait();
+        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${Txn.hash}`);
+      document.getElementById("miningTxt").innerHTML = " شما این مقدار "+ burnAmountTxt  + "توکن سوزاندید. برای دیدن تراکنش لینک زیر را در مرورگر خود کپی کنید " + `https://rinkeby.etherscan.io/tx/${mintTxn.hash}` ;
+        }catch (err) {
+      document.getElementById("miningTxt").innerHTML = "";
+        if (Txn.hash){
+        alert(`Go to the transaction link to see the reason for the error: https://rinkeby.etherscan.io/tx/${Txn.hash}`)
+    }
+    } 
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -140,10 +158,25 @@ if (chainId !== rinkebyChainId) {
     </button>
   );
 
-  const renderMintUI = () => (
-    <button onClick={askContractToMintNft} className="cta-button mint-button">
-      Mint NFT
-    </button>
+  const renderFuncUI = () => (
+    <div className="tokenFuncs">
+      <div className="mintBlock">
+        <label for="addr" style={{color:"White"}}>Address: </label>
+        <input type="text" id="addr" className="addr"/><br></br>
+        <label for="amount" style={{color:"White", marginLeft: "15px"}}>Amount: </label>
+        <input type="text" id="amount" className="amount"/><br></br> 
+  </div>
+      <button onClick={askContractToMintToken} className="cta-button mint-button">Mint</button>
+      
+    <div className="burnBlock" style={{marginTop:"50px"}}>
+        <label for="amountBurn" style={{color:"White"}}>Burn Amount: </label>
+        <input type="text" id="amountBurn" className="amountBurn"/><br></br> 
+  </div>
+      <button onClick={askContractToBurnToken} className="cta-button mint-button">
+        Burn
+      </button>
+      <div id="miningTxt" style={{textAlign: 'center', marginTop:"30px", color:"White", direction: "rtl"}}></div>
+    </div>
   )
 
 
@@ -151,28 +184,11 @@ if (chainId !== rinkebyChainId) {
     <div className="App">
       <div className="container">
         <div className="header-container">
-          <p className="header gradient-text">My NFT Collection</p>
+          <p className="header gradient-text">WebMetric ERC20</p>
           <p className="sub-text">
-            Each unique. Each beautiful. Discover your NFT today.
+            این پروژه برای ضرب کردن و سوزاندن یک توکن ERC20 طراحی شده است.
           </p>
-          {currentAccount === "" ? renderNotConnectedContainer() : renderMintUI()}
-        <div id="mint-count">
-          
-        </div>
-        <div>
-          <a href={OPENSEA_LINK}>
-            <input type="button" value="🌊 View Collection on OpenSea" className="cta-button opensea-button"/>
-          </a>          
-        </div>
-        </div>
-        <div className="footer-container">
-          <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
-          <a
-            className="footer-text"
-            href={TWITTER_LINK}
-            target="_blank"
-            rel="noreferrer"
-          >{`built on @${TWITTER_HANDLE}`}</a>
+          {currentAccount === "" ? renderNotConnectedContainer() : renderFuncUI()}
         </div>
       </div>
     </div>
