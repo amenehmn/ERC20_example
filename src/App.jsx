@@ -1,10 +1,10 @@
 import './styles/App.css';
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import WebMetric20 from './utils/WebMetric20.json';
+import devxlab from './utils/devxlab.json';
 
 // I moved the contract address to the top for easy access.
-const CONTRACT_ADDRESS = "0x5B2fd046f99fF0ad4Df1bb04c340AB3229cb8C35";
+const CONTRACT_ADDRESS = "0xb3F2ab550aC4975864982FAcfaFb3E0864620bcd";
 
 const App = () => {
 
@@ -73,7 +73,7 @@ if (chainId !== rinkebyChainId) {
         
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, WebMetric20.abi, signer);
+        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, devxlab.abi, signer);
 
         console.log("Going to pop wallet now to pay gas...")
         let AddrTxt = document.getElementById("addr").value;
@@ -86,7 +86,7 @@ if (chainId !== rinkebyChainId) {
         document.getElementById("miningTxt").innerHTML = `Mining...please wait.`
         await mintTxn.wait();
         console.log(mintTxn);
-        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
+        console.log(`Mining, see transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
         document.getElementById("miningTxt").innerHTML = " مقدار "+ AmountTxt + " برای این آدرس " + AddrTxt + "مینت شد. برای دیدن تراکنش لینک زیر را در مرورگر خود کپی کنید" + `https://rinkeby.etherscan.io/tx/${mintTxn.hash}` ;
       }catch (err) {
        document.getElementById("miningTxt").innerHTML = "";
@@ -120,23 +120,24 @@ if (chainId !== rinkebyChainId) {
         
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, WebMetric20.abi, signer);
+        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, devxlab.abi, signer);
 
         console.log("Going to pop wallet now to pay gas...")
         let burnAmountTxt = document.getElementById("amountBurn").value;
         try {
         let Txn = await connectedContract.burn(burnAmountTxt, { gasLimit: 300000 });
 
-        console.log("Mining...please wait.")
-        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${Txn.hash}`);
+        console.log("Mining...please wait.");
+        console.log(`Mining, see transaction: https://rinkeby.etherscan.io/tx/${Txn.hash}`);
         document.getElementById("miningTxt").innerHTML = `Mining...please wait.`
+        let tnxHash = Txn.hash;
         await Txn.wait();
         console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${Txn.hash}`);
-      document.getElementById("miningTxt").innerHTML = " شما این مقدار "+ burnAmountTxt  + "توکن سوزاندید. برای دیدن تراکنش لینک زیر را در مرورگر خود کپی کنید " + `https://rinkeby.etherscan.io/tx/${mintTxn.hash}` ;
-        }catch (err) {
-      document.getElementById("miningTxt").innerHTML = "";
-        if (Txn.hash){
-        alert(`Go to the transaction link to see the reason for the error: https://rinkeby.etherscan.io/tx/${Txn.hash}`)
+      document.getElementById("miningTxt").innerHTML = " شما این مقدار "+ burnAmountTxt  + "توکن سوزاندید. برای دیدن تراکنش لینک زیر را در مرورگر خود کپی کنید " + `https://rinkeby.etherscan.io/tx/${Txn.hash}`;
+        } catch(err) {
+        document.getElementById("miningTxt").innerHTML = "";
+        if (tnxHash){
+        alert(`Go to the transaction link to see the reason for the error: https://rinkeby.etherscan.io/tx/${tnxHash}`);
     }
     } 
       } else {
