@@ -185,7 +185,7 @@ if (chainId !== rinkebyChainId) {
     <div className="App">
       <div className="container">
         <div className="header-container">
-          <p className="header gradient-text">WebMetric ERC20</p>
+          <p className="header gradient-text">DevXLab ERC20</p>
           <p className="sub-text">
             This is a project for minting and burning a ERC20 Token
           </p>
