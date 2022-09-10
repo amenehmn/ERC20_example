@@ -60,6 +60,13 @@
   background-size: 200% 200%;
   animation: gradient-animation 4s ease infinite;
   margin-right: 15px;
+  margin-left: 20px;
+  width: 150px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
 }
 
 .tokenFuncs {
@@ -67,11 +74,14 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .mintBlock {
   display: flex;
-/*   flex-direction: column; */
+  margin-top: 50px;
+  align-items: center;
 }
 
 .opensea-button {

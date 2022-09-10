@@ -87,7 +87,9 @@ if (chainId !== rinkebyChainId) {
         await mintTxn.wait();
         console.log(mintTxn);
         console.log(`Mining, see transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
-        document.getElementById("miningTxt").innerHTML = "Minted The amoun of: "+ AmountTxt + " to this address: " + AddrTxt + "See transaction:" + `https://rinkeby.etherscan.io/tx/${mintTxn.hash}` ;
+        document.getElementById("miningTxt").innerHTML = "Minted The amoun of: "+ AmountTxt + " to this address: " + AddrTxt + "See transaction:" ;
+        document.getElementById("etherScanLnk").href = `https://rinkeby.etherscan.io/tx/${mintTxn.hash}`;
+        document.getElementById("etherScanLnk").innerHTML = `https://rinkeby.etherscan.io/tx/${mintTxn.hash}`;
       }catch (err) {
        document.getElementById("miningTxt").innerHTML = "";
         if (mintTxn.hash){
@@ -133,7 +135,9 @@ if (chainId !== rinkebyChainId) {
         let tnxHash = Txn.hash;
         await Txn.wait();
         console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${Txn.hash}`);
-      document.getElementById("miningTxt").innerHTML = " You burned "+ burnAmountTxt  + "Token, see transaction:" + `https://rinkeby.etherscan.io/tx/${Txn.hash}`;
+      document.getElementById("miningTxt").innerHTML = " You burned "+ burnAmountTxt  + "Token, see transaction:" ;
+          document.getElementById("etherScanLnk").href = `https://rinkeby.etherscan.io/tx/${Txn.hash}`;
+          document.getElementById("etherScanLnk").innerHTML = `https://rinkeby.etherscan.io/tx/${Txn.hash}`;
         } catch(err) {
         document.getElementById("miningTxt").innerHTML = "";
         if (tnxHash){
@@ -147,7 +151,55 @@ if (chainId !== rinkebyChainId) {
       console.log(error)
     }
   }
+/// allowance
+   const transfer_Ownership = async () => {
+    try {
+      const { ethereum } = window;
 
+      if (ethereum) {
+
+      let chainId = await ethereum.request({ method: 'eth_chainId' });
+console.log("Connected to chain " + chainId);
+
+// String, hex code of the chainId of the Rinkebey test network
+const rinkebyChainId = "0x4"; 
+if (chainId !== rinkebyChainId) {
+	alert("You are not connected to the Rinkeby Test Network!");
+}
+        
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, devxlab.abi, signer);
+
+        console.log("Going to pop wallet now to pay gas...")
+        let newOwnerTxt = document.getElementById("newOwner").value;
+        // try{
+        let ownerTxn = await connectedContract.transferOwnership(newOwnerTxt, { gasLimit: 300000 })
+
+        console.log("Mining...please wait.")
+        console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${ownerTxn.hash}`);
+        document.getElementById("miningTxt").innerHTML = `Mining...please wait.`
+        await ownerTxn.wait();
+        console.log(ownerTxn);
+        console.log(`Mining, see transaction: https://rinkeby.etherscan.io/tx/${ownerTxn.hash}`);
+        document.getElementById("miningTxt").innerHTML = "Minted The amoun of: "+ AmountTxt + " to this address: " + AddrTxt + "See transaction:";
+        document.getElementById("etherScanLnk").href = `https://rinkeby.etherscan.io/tx/${ownerTxn.hash}`;
+        document.getElementById("etherScanLnk").innerHTML = `https://rinkeby.etherscan.io/tx/${ownerTxn.hash}`;
+          
+      // }catch (err) {
+    //    document.getElementById("miningTxt").innerHTML = "";
+    //     if (ownerTxn.hash){
+    //     alert(`Go to the transaction link to see the reason for the error: https://rinkeby.etherscan.io/tx/${ownerTxn.hash}`)
+    // }
+    //     }
+      } 
+      else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     checkIfWalletIsConnected();
@@ -162,21 +214,32 @@ if (chainId !== rinkebyChainId) {
   const renderFuncUI = () => (
     <div className="tokenFuncs">
       <div className="mintBlock">
-        <label for="addr" style={{color:"White"}}>Address: </label>
+        <label for="addr" style={{color:"White", marginRight:"5px"}}>Address: </label>
         <input type="text" id="addr" className="addr"/><br></br>
-        <label for="amount" style={{color:"White", marginLeft: "15px"}}>Amount: </label>
+        <label for="amount" style={{color:"White", marginLeft: "15px", marginRight:"5px"}}>Amount: </label>
         <input type="text" id="amount" className="amount"/><br></br> 
+        <button onClick={askContractToMintToken} className="cta-button mint-button">Mint</button>
   </div>
-      <button onClick={askContractToMintToken} className="cta-button mint-button">Mint</button>
       
-    <div className="burnBlock" style={{marginTop:"50px"}}>
-        <label for="amountBurn" style={{color:"White"}}>Burn Amount: </label>
+    <div className="mintBlock" style={{marginTop:"50px"}}>
+        <label for="amountBurn" style={{color:"White", marginRight:"5px"}}>Burn Amount: </label>
         <input type="text" id="amountBurn" className="amountBurn"/><br></br> 
-  </div>
       <button onClick={askContractToBurnToken} className="cta-button mint-button">
         Burn
       </button>
-      <div id="miningTxt" style={{textAlign: 'center', marginTop:"30px", color:"White"}}></div>
+    </div>
+
+      <div className="mintBlock">
+        <label for="newOwner" style={{color:"White",marginRight:"5px"}}>New Owner: </label>
+        <input type="text" id="newOwner" className="newOwner"/><br></br>
+      <button onClick={transfer_Ownership} className="cta-button mint-button">Ownership</button>
+  </div>
+      
+      
+      <div id="miningTxt" style={{textAlign: 'center', marginTop:"30px", color:"White",fontSize: "16px",fontWeight: "bold"}}></div>
+    <div>
+    <a id="etherScanLnk" style={{textAlign: 'center', color:"White",fontSize: "16px",fontWeight: "bold"}}></a>
+    </div>
     </div>
   )
 
